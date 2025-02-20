@@ -1,2 +1,2 @@
 # FPS_shooter
-Unityn perusteiden harjoitustehtävän repo
+Unityn perusteiden FPS Shooter-harjoitustehtävän repo
