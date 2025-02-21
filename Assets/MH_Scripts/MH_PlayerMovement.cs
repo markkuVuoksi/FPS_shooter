@@ -9,7 +9,7 @@ public class MH_PlayerMovement : MonoBehaviour
     public Camera playerCamera;
     private CharacterController characterController;
     private Vector3 playerVelocity;
-    private bool isGrounded;
+    public bool isGrounded;
 
     // Start is called before the first frame update
     void Start()
