@@ -4,32 +4,28 @@ using UnityEngine;
 
 public class MH_CameraMovement : MonoBehaviour
 {
-    public float mouseSensitivity = 2f;
-    public Transform playerBody;
-    
-    private float verticalRotation = 0f;
-    private float horizontalRotation = 0f;
+    public float mouseSensitivity = 100.0f;
+    private Transform playerBody;
+    private float xRotation = 0.0f;
 
-    void Start()
+    private void Start()
     {
-        // Lock and hide the cursor
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        playerBody = transform.parent;
+        Cursor.lockState = CursorLockMode.Locked; // lukitse kursori keskelle ruutua
     }
 
-    void Update()
+    private void Update()
     {
-        // Get mouse input
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
+        RotateCamera();
+    }
 
-        // Rotate vertically (camera only)
-        verticalRotation -= mouseY;
-        verticalRotation = Mathf.Clamp(verticalRotation, -90f, 90f);
-        transform.localRotation = Quaternion.Euler(verticalRotation, 0f, 0f);
-
-        // Rotate horizontally (entire player)
-        horizontalRotation += mouseX;
-        playerBody.rotation = Quaternion.Euler(0f, horizontalRotation, 0f);
+    private void RotateCamera()
+    {
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        xRotation -= mouseY;
+        xRotation = Mathf.Clamp(xRotation, -90.0f, 90.0f); // niin että kamera ei pyöri ylösalaisin
+        transform.localRotation = Quaternion.Euler(xRotation, 0, 0);
+        playerBody.Rotate(Vector3.up * mouseX);
     }
 }
