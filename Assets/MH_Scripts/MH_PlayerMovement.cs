@@ -4,54 +4,110 @@ using UnityEngine;
 
 public class MH_PlayerMovement : MonoBehaviour
 {
-    public float speed = 5f;
-    public float jumpHeight = 2f;
-    public Camera playerCamera;
+    public float speed = 5.0f;
+
+    public float jumpHeight = 2.0f;
+
+    public float groundDistance = 0.4f;
+
+    public LayerMask groundLayer;
+
+    public Transform groundCheck;
+
+
+
     private CharacterController characterController;
-    private Vector3 playerVelocity;
-    public bool isGrounded;
 
-    // Start is called before the first frame update
-    void Start()
+    private Transform cameraTransform;
+
+    private Vector3 velocity;
+
+    private bool isGrounded;
+
+    private float gravity = -9.81f; // saatat joutua tätä säätämään fysiikan simuloimiseksi
+
+
+
+    private void Start()
+
     {
+
         characterController = GetComponent<CharacterController>();
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        MovePlayer();
-    }
+        cameraTransform = Camera.main.transform;
 
-    void MovePlayer()
-    {
-        isGrounded = characterController.isGrounded;
-        if (isGrounded && playerVelocity.y < 0)
+        if (groundCheck == null)
+
         {
-            playerVelocity.y = 0f;
+
+            Debug.LogError("Assign a GroundCheck object to the PlayerMovement script in the inspector.");
+
+            this.enabled = false;
+
+            return;
+
         }
 
-        float moveHorizontal = Input.GetAxis("Horizontal");
-        float moveVertical = Input.GetAxis("Vertical");
+    }
 
-        Vector3 forward = playerCamera.transform.forward;
-        Vector3 right = playerCamera.transform.right;
 
-        forward.y = 0f;
-        right.y = 0f;
 
-        forward.Normalize();
-        right.Normalize();
+    private void Update()
 
-        Vector3 movement = (forward * moveVertical + right * moveHorizontal).normalized;
-        characterController.Move(movement * speed * Time.deltaTime);
+    {
+
+        MovePlayer();
+
+    }
+
+
+
+    private void MovePlayer()
+
+    {
+
+        isGrounded = Physics.CheckSphere(groundCheck.position, groundDistance, groundLayer);
+
+        if (isGrounded && velocity.y < 0)
+
+        {
+
+            velocity.y = -2f; // pidä hahmo maassa
+
+        }
+
+        float horizontal = Input.GetAxisRaw("Horizontal");
+
+        float vertical = Input.GetAxisRaw("Vertical");
+
+        Vector3 forwardDirection = cameraTransform.forward;
+
+        Vector3 rightDirection = cameraTransform.right;
+
+        forwardDirection.y = 0; // niin ettei pelaaja lähde lentämään y akselilla.
+
+        rightDirection.y = 0;
+
+        forwardDirection.Normalize();
+
+        rightDirection.Normalize();
+
+        Vector3 desiredDirection = (forwardDirection * vertical + rightDirection * horizontal).normalized;
+
+        Vector3 movement = desiredDirection * speed * Time.deltaTime;
+
+        characterController.Move(movement);
+
+        // hyppy logiikka
 
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
-            playerVelocity.y += Mathf.Sqrt(jumpHeight * -2f * Physics.gravity.y);
+            velocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
 
-        playerVelocity.y += Physics.gravity.y * Time.deltaTime;
-        characterController.Move(playerVelocity * Time.deltaTime);
+        velocity.y += gravity * Time.deltaTime;
+        characterController.Move(velocity * Time.deltaTime);
+
     }
+
 }
